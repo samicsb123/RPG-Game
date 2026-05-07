@@ -52,12 +52,18 @@ public class EnemyStats : MonoBehaviour
     void Die()
     {
         Debug.Log("Inamic invins!");
+
         PlayerStats player = FindObjectOfType<PlayerStats>();
         if (player != null)
         {
+            // Adăugăm XP-ul fix setat în Inspector
             player.AddXP(xpReward);
-            player.gold += goldReward;
+            int randomGold = Random.Range(100, 151);
+
+            // Trimitem aurul către jucător
+            player.AddGold(randomGold);
         }
-        Destroy(gameObject);
+
+        Destroy(gameObject); // Ursul dispare
     }
 }
