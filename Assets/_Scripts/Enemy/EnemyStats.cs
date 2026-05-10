@@ -8,19 +8,19 @@ public class EnemyStats : MonoBehaviour
     public int attackDamage = 10;
 
     [Header("Setari Atac")]
-    public float attackCooldown = 1.0f;
-    private float lastAttackTime = -100f; // Seta de start mica pentru atac instant la prima atingere
+    public float attackCooldown = 1.5f; // Puțin mai rar ca să nu moară playerul instant
+    private float lastAttackTime = -100f;
 
     [Header("Recompense (Metin2 Style)")]
     public int xpReward = 25;
-    public int goldReward = 15;
+    public int goldMin = 10; // Mai bine punem un range clar
+    public int goldMax = 20;
 
     void Start()
     {
         currentHealth = maxHealth;
     }
 
-    // Folosim Stay2D pentru damage continuu
     private void OnCollisionStay2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Player"))
@@ -32,7 +32,7 @@ public class EnemyStats : MonoBehaviour
                 {
                     player.TakeDamage(attackDamage);
                     lastAttackTime = Time.time;
-                    Debug.Log("Ursul te mușcă! HP rămas: " + player.currentHealth);
+                    // Debug-ul tău e bun, îl lăsăm
                 }
             }
         }
@@ -41,7 +41,7 @@ public class EnemyStats : MonoBehaviour
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
-        Debug.Log("Ursul a luat damage. Viata ramasa: " + currentHealth);
+        // Aici poți adăuga un efect de sânge sau sclipire mai târziu
 
         if (currentHealth <= 0)
         {
@@ -51,19 +51,18 @@ public class EnemyStats : MonoBehaviour
 
     void Die()
     {
-        Debug.Log("Inamic invins!");
-
         PlayerStats player = FindObjectOfType<PlayerStats>();
         if (player != null)
         {
-            // Adăugăm XP-ul fix setat în Inspector
             player.AddXP(xpReward);
-            int randomGold = Random.Range(100, 151);
 
-            // Trimitem aurul către jucător
+            // Folosim range-ul de aur setat pentru acest inamic specific
+            int randomGold = Random.Range(goldMin, goldMax + 1);
             player.AddGold(randomGold);
+
+            Debug.Log($"Inamic învins! Ai primit {xpReward} XP și {randomGold} Gold.");
         }
 
-        Destroy(gameObject); // Ursul dispare
+        Destroy(gameObject); // Asta va declanșa automat Spawner-ul nostru!
     }
 }
