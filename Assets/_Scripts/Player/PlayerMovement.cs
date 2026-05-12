@@ -37,4 +37,25 @@ public class PlayerMovement : MonoBehaviour
     {
         rb.MovePosition(rb.position + moveInput.normalized * speed * Time.fixedDeltaTime);
     }
+
+    public bool isInSafeZone = false;
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        // Când intri în zona verde a satului
+        if (other.CompareTag("SafeZone"))
+        {
+            isInSafeZone = true;
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        // Când ieși din sat
+        if (other.CompareTag("SafeZone"))
+        {
+            isInSafeZone = false;
+        }
+    }
 }
+

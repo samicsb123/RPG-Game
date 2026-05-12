@@ -2,99 +2,126 @@
 
 public class EnemyAI : MonoBehaviour
 {
-    [Header("Setări Mișcare")]
-    public float speed = 2f;
-    public float chaseSpeed = 3.5f;
-    public float detectionRange = 5f;
-    public float stopDistance = 1.2f;
+    [Header("Ținte și Mișcare")]
+    public Transform player;
+    public float detectionRange = 8f;
+    public float patrolRadius = 5f;
 
-    [Header("Patrol")]
-    public float patrolRadius = 4f;
-    private Vector2 patrolTarget;
-    private float patrolTimer;
+    [Header("Setări Animație")]
+    public float animationSmoothSpeed = 8f;
 
-    private Transform player;
-    private Rigidbody2D rb;
-    private Animator animator;
+    private GameObject patrolTargetObject;
+    private Component aiDestinationSetter;
+    private Animator anim;
+    private Component aiPathHidden;
+
+    [Header("Setări Perseverență")]
+    public float chasePersistence = 3f;
+    private float persistenceTimer;
     private bool isChasing = false;
 
     void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
-        animator = GetComponent<Animator>();
+        anim = GetComponent<Animator>();
+        aiDestinationSetter = GetComponent("AIDestinationSetter");
+        aiPathHidden = GetComponent("AIPath");
 
-        // Căutăm jucătorul după Tag. ASIGURĂ-TE CĂ PLAYERUL ARE TAG-UL "Player"
-        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-        if (playerObj != null) player = playerObj.transform;
-
+        patrolTargetObject = new GameObject("Urs_PatrolTarget");
         GetNewPatrolPoint();
     }
 
     void Update()
     {
-        if (player == null) return;
+        if (player == null || aiDestinationSetter == null) return;
+
+        // 1. Verificăm SafeZone (Asigură-te că numele scriptului e corect aici)
+        var playerScript = player.GetComponent<PlayerMovement>();
+        bool playerSafe = (playerScript != null) ? playerScript.isInSafeZone : false;
 
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
-        // Logică de detectare
-        if (distanceToPlayer <= detectionRange) isChasing = true;
-        else if (distanceToPlayer > detectionRange * 1.5f) isChasing = false;
-
-        if (isChasing) ChasePlayer(distanceToPlayer);
-        else Patrol();
-    }
-
-    void Move(Vector2 direction, float currentSpeed)
-    {
-        // Folosim .velocity pentru versiunile mai vechi de Unity
-        rb.velocity = direction * currentSpeed;
-
-        if (direction != Vector2.zero)
+        // 2. Logică de Urmărire
+        if (distanceToPlayer <= detectionRange && !playerSafe)
         {
-            animator.SetFloat("Horizontal", direction.x);
-            animator.SetFloat("Vertical", direction.y);
-        }
-
-        animator.SetFloat("Speed", direction.sqrMagnitude);
-    }
-
-    void ChasePlayer(float distance)
-    {
-        if (distance > stopDistance)
-        {
-            Vector2 direction = (player.position - transform.position).normalized;
-            Move(direction, chaseSpeed);
+            isChasing = true;
+            persistenceTimer = chasePersistence;
         }
         else
         {
-            Move(Vector2.zero, 0); // Se oprește lângă tine
-            // Aici poți adăuga animator.SetTrigger("Attack") mai târziu
+            persistenceTimer -= Time.deltaTime;
+            if (persistenceTimer <= 0 || playerSafe) isChasing = false;
+        }
+
+        // 3. Setăm ținta
+        if (isChasing) SetAITarget(player);
+        else Patrol();
+
+        // 4. Actualizăm Animația
+        UpdateAnimation();
+    }
+
+    void UpdateAnimation()
+    {
+        if (aiPathHidden == null || anim == null) return;
+
+        var targetProperty = aiPathHidden.GetType().GetProperty("steeringTarget");
+        if (targetProperty != null)
+        {
+            Vector3 steeringTarget = (Vector3)targetProperty.GetValue(aiPathHidden, null);
+            Vector3 rawDirection = steeringTarget - transform.position;
+
+            if (rawDirection.magnitude > 0.1f)
+            {
+                Vector2 targetDir = new Vector2(rawDirection.x, rawDirection.y).normalized;
+
+                float currentH = anim.GetFloat("Horizontal");
+                float currentV = anim.GetFloat("Vertical");
+
+                // Smoothing pentru mișcare lină în Blend Tree
+                float smoothH = Mathf.MoveTowards(currentH, targetDir.x, Time.deltaTime * animationSmoothSpeed);
+                float smoothV = Mathf.MoveTowards(currentV, targetDir.y, Time.deltaTime * animationSmoothSpeed);
+
+                anim.SetFloat("Horizontal", smoothH);
+                anim.SetFloat("Vertical", smoothV);
+                anim.SetBool("isWalking", true);
+            }
+            else
+            {
+                anim.SetBool("isWalking", false);
+            }
         }
     }
 
     void Patrol()
     {
-        float distanceToPoint = Vector2.Distance(transform.position, patrolTarget);
-
-        if (distanceToPoint < 0.2f || patrolTimer > 5f)
-        {
+        if (Vector2.Distance(transform.position, patrolTargetObject.transform.position) < 0.5f)
             GetNewPatrolPoint();
-            patrolTimer = 0;
-        }
 
-        Vector2 direction = (patrolTarget - (Vector2)transform.position).normalized;
-        Move(direction, speed);
-        patrolTimer += Time.deltaTime;
+        SetAITarget(patrolTargetObject.transform);
     }
 
     void GetNewPatrolPoint()
     {
-        patrolTarget = (Vector2)transform.position + Random.insideUnitCircle * patrolRadius;
+        for (int i = 0; i < 10; i++)
+        {
+            Vector2 potentialPoint = (Vector2)transform.position + Random.insideUnitCircle * patrolRadius;
+            Collider2D hit = Physics2D.OverlapPoint(potentialPoint);
+
+            if (hit == null || (!hit.CompareTag("SafeZone") && hit.gameObject.layer != LayerMask.NameToLayer("Obstacole")))
+            {
+                patrolTargetObject.transform.position = potentialPoint;
+                return;
+            }
+        }
+        patrolTargetObject.transform.position = transform.position;
     }
 
-    private void OnDrawGizmosSelected()
+    void SetAITarget(Transform targetTransform)
     {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, detectionRange);
+        if (aiDestinationSetter != null)
+        {
+            var targetField = aiDestinationSetter.GetType().GetField("target");
+            if (targetField != null) targetField.SetValue(aiDestinationSetter, targetTransform);
+        }
     }
 }
