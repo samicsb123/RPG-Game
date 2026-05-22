@@ -1,93 +1,173 @@
 ﻿using UnityEngine;
-using TMPro; // Asigură-te că ai asta pentru texte
+using TMPro;
 
 public class PlayerStats : MonoBehaviour
 {
-    [Header("Statistici Vitale")]
-    public int maxHealth = 100;
+    [Header("Statistici Personaj (Puncte)")]
+    public int strength = 5;
+    public int dexterity = 5;
+    public int vitality = 5;
+
+    [Header("Atribute Vitale Calculate")]
+    public int maxHealth;
     public int currentHealth;
+    public int damage;
 
     [Header("Progresie (RPG)")]
     public int level = 1;
     public int currentXP = 0;
     public int xpToNextLevel = 100;
+    public int statPointsAvailable = 0;
 
     [Header("Economie")]
     public int gold = 0;
 
-    [Header("UI Referințe")]
+    [Header("UI Referințe Principale")]
     public HealthBar healthBar;
-    public TMP_Text xpText;   // Trage XPText aici în Inspector
-    public TMP_Text goldText; // Trage GoldText aici în Inspector
+    public TMP_Text hpText;      // <-- NOU: Textul de pe bara de HP
+    public TMP_Text xpText;
+    public TMP_Text goldText;
+
+    [Header("UI Status Menu Referințe (Panel)")]
+    public GameObject statusMenuPanel;
+    public TMP_Text pointsText;
+    public TMP_Text strText;
+    public TMP_Text vitText;
 
     void Start()
     {
+        if (statusMenuPanel != null) statusMenuPanel.SetActive(false);
+
+        RecalculateStats();
+
         currentHealth = maxHealth;
         if (healthBar != null) healthBar.SetMaxHealth(maxHealth);
 
-        UpdateUI(); // Afișăm valorile corecte la start
+        UpdateUI();
+        UpdateHPText(); // <-- NOU: Setăm textul de viață la start
     }
 
-    // Funcția care adaugă XP (chemată de urs când moare)
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            if (statusMenuPanel != null)
+            {
+                bool isMenuActive = !statusMenuPanel.activeSelf;
+                statusMenuPanel.SetActive(isMenuActive);
+
+                if (isMenuActive)
+                {
+                    UpdateUI();
+                }
+            }
+        }
+    }
+
+    public void RecalculateStats()
+    {
+        int oldMaxHealth = maxHealth;
+        maxHealth = vitality * 10;
+        damage = strength * 2;
+
+        if (healthBar != null && maxHealth > oldMaxHealth)
+        {
+            healthBar.SetMaxHealth(maxHealth);
+        }
+    }
+
     public void AddXP(int amount)
     {
         currentXP += amount;
-
-        // Verificăm dacă am făcut nivel
-        if (currentXP >= xpToNextLevel)
+        while (currentXP >= xpToNextLevel)
         {
             LevelUp();
         }
-
         UpdateUI();
     }
+
     public void AddGold(int amount)
     {
         gold += amount;
-        UpdateUI(); // Aceasta este linia care "repară" afișarea pe ecran
-        Debug.Log("Ai primit " + amount + " Gold!");
+        UpdateUI();
     }
+
     void LevelUp()
     {
         level++;
-        // Păstrăm XP-ul rămas (ex: dacă ai 110/100, rămâi cu 10 la lvl următor)
         currentXP -= xpToNextLevel;
-
-        // Mărim dificultatea pentru nivelul următor (ex: cu 50% mai mult)
         xpToNextLevel = Mathf.RoundToInt(xpToNextLevel * 1.5f);
 
-        Debug.Log("Felicitări! Ai ajuns la nivelul " + level);
+        statPointsAvailable += 3;
 
-        // Opțional: Îți dăm viața plină la level up
         currentHealth = maxHealth;
         if (healthBar != null) healthBar.SetHealth(currentHealth);
+
+        UpdateUI();
+        UpdateHPText(); // <-- NOU
     }
 
-    // Această funcție scrie pe ecran valorile exact cum ai cerut
+    public void UpgradeStrength()
+    {
+        if (statPointsAvailable > 0)
+        {
+            strength++;
+            statPointsAvailable--;
+            RecalculateStats();
+            UpdateUI();
+        }
+    }
+
+    public void UpgradeVitality()
+    {
+        if (statPointsAvailable > 0)
+        {
+            vitality++;
+            statPointsAvailable--;
+            RecalculateStats();
+
+            currentHealth += 10;
+            if (healthBar != null) healthBar.SetHealth(currentHealth);
+
+            UpdateUI();
+            UpdateHPText(); // <-- NOU
+        }
+    }
+
     public void UpdateUI()
     {
-        if (xpText != null)
-        {
-            // Format: XP: 10 / 100
-            xpText.text = "XP: " + currentXP + " / " + xpToNextLevel + " (Lvl " + level + ")";
-        }
+        if (xpText != null) xpText.text = "XP: " + currentXP + " / " + xpToNextLevel + " (Lvl " + level + ")";
+        if (goldText != null) goldText.text = "Gold: " + gold;
 
-        if (goldText != null)
+        if (strText != null)
         {
-            // Format: Gold: 50
-            goldText.text = "Gold: " + gold;
+            pointsText.text = "Puncte Disponibile: " + statPointsAvailable;
+            strText.text = "Strength: " + strength;
+            vitText.text = "Vitality: " + vitality;
         }
     }
 
-    public void TakeDamage(int damage)
+    // Funcția nouă care scrie x / y pe ecran
+    public void UpdateHPText()
     {
-        currentHealth -= damage;
+        if (hpText != null)
+        {
+            hpText.text = currentHealth + " / " + maxHealth;
+        }
+    }
+
+    public void TakeDamage(int damageAmount)
+    {
+        currentHealth -= damageAmount;
         if (healthBar != null) healthBar.SetHealth(currentHealth);
+
+        UpdateHPText(); // <-- NOU: Când iei damage, scade și numărul
 
         if (currentHealth <= 0)
         {
             Debug.Log("Jucătorul a murit!");
-            // Aici poți pune logica de Game Over
+            // Aici poți asigura că nu scrie cu minus (ex: 0 / 100)
+            if (hpText != null) hpText.text = "0 / " + maxHealth;
         }
     }
 }
