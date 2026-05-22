@@ -34,7 +34,7 @@ public class EnemyAI : MonoBehaviour
     {
         if (player == null || aiDestinationSetter == null) return;
 
-        // 1. Verificăm SafeZone 
+        // 1. Verificăm SafeZone (Asigură-te că numele scriptului e corect aici)
         var playerScript = player.GetComponent<PlayerMovement>();
         bool playerSafe = (playerScript != null) ? playerScript.isInSafeZone : false;
 
@@ -64,33 +64,29 @@ public class EnemyAI : MonoBehaviour
     {
         if (aiPathHidden == null || anim == null) return;
 
-        // Luăm VITEZA reală a ursului din A* Pathfinding în loc de direcția țintei
-        var velocityProperty = aiPathHidden.GetType().GetProperty("velocity");
-        if (velocityProperty != null)
+        var targetProperty = aiPathHidden.GetType().GetProperty("steeringTarget");
+        if (targetProperty != null)
         {
-            Vector3 velocity = (Vector3)velocityProperty.GetValue(aiPathHidden, null);
+            Vector3 steeringTarget = (Vector3)targetProperty.GetValue(aiPathHidden, null);
+            Vector3 rawDirection = steeringTarget - transform.position;
 
-            // Dacă ursul chiar se mișcă (nu stă pe loc)
-            if (velocity.magnitude > 0.1f)
+            if (rawDirection.magnitude > 0.1f)
             {
-                Vector2 targetDir = new Vector2(velocity.x, velocity.y).normalized;
+                Vector2 targetDir = new Vector2(rawDirection.x, rawDirection.y).normalized;
 
-                // Citim valorile actuale din Animator (Acum folosim X și Y)
-                float currentX = anim.GetFloat("X");
-                float currentY = anim.GetFloat("Y");
+                float currentH = anim.GetFloat("Horizontal");
+                float currentV = anim.GetFloat("Vertical");
 
-                // Smoothing pentru ca ursul să nu se întoarcă brusc
-                float smoothX = Mathf.MoveTowards(currentX, targetDir.x, Time.deltaTime * animationSmoothSpeed);
-                float smoothY = Mathf.MoveTowards(currentY, targetDir.y, Time.deltaTime * animationSmoothSpeed);
+                // Smoothing pentru mișcare lină în Blend Tree
+                float smoothH = Mathf.MoveTowards(currentH, targetDir.x, Time.deltaTime * animationSmoothSpeed);
+                float smoothV = Mathf.MoveTowards(currentV, targetDir.y, Time.deltaTime * animationSmoothSpeed);
 
-                // Trimitem noile valori către Blend Tree
-                anim.SetFloat("X", smoothX);
-                anim.SetFloat("Y", smoothY);
+                anim.SetFloat("Horizontal", smoothH);
+                anim.SetFloat("Vertical", smoothV);
                 anim.SetBool("isWalking", true);
             }
             else
             {
-                // Când se oprește, oprim animația de mers (dar își păstrează ultima privire)
                 anim.SetBool("isWalking", false);
             }
         }
