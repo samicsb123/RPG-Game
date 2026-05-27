@@ -16,9 +16,18 @@ public class EnemyStats : MonoBehaviour
     public int goldMin = 10; // Mai bine punem un range clar
     public int goldMax = 20;
 
+    [Header("UI Bara de Viata")]
+    public HealthBar healthBar; // NOU: Referința către scriptul de pe Slider
+
     void Start()
     {
         currentHealth = maxHealth;
+
+        // NOU: Când se spawnează ursul, setăm slider-ul la maxHealth
+        if (healthBar != null)
+        {
+            healthBar.SetMaxHealth(maxHealth);
+        }
     }
 
     private void OnCollisionStay2D(Collision2D collision)
@@ -41,6 +50,13 @@ public class EnemyStats : MonoBehaviour
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
+
+        // NOU: Când își ia damage, actualizăm bara să scadă
+        if (healthBar != null)
+        {
+            healthBar.SetHealth(currentHealth);
+        }
+
         // Aici poți adăuga un efect de sânge sau sclipire mai târziu
 
         if (currentHealth <= 0)
@@ -48,6 +64,7 @@ public class EnemyStats : MonoBehaviour
             Die();
         }
     }
+
 
     void Die()
     {

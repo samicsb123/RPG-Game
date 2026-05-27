@@ -34,14 +34,18 @@ public class EnemyAI : MonoBehaviour
     {
         if (player == null || aiDestinationSetter == null) return;
 
-        // 1. Verificăm SafeZone (Asigură-te că numele scriptului e corect aici)
+        // 1. Verificăm SafeZone 
         var playerScript = player.GetComponent<PlayerMovement>();
         bool playerSafe = (playerScript != null) ? playerScript.isInSafeZone : false;
 
+        // 2. NOU: Verificăm dacă jucătorul este mort
+        var playerStats = player.GetComponent<PlayerStats>();
+        bool playerDead = (playerStats != null) ? playerStats.isDead : false;
+
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
-        // 2. Logică de Urmărire
-        if (distanceToPlayer <= detectionRange && !playerSafe)
+        // 3. Logică de Urmărire (Te atacă doar dacă NU ești safe și NU ești mort)
+        if (distanceToPlayer <= detectionRange && !playerSafe && !playerDead)
         {
             isChasing = true;
             persistenceTimer = chasePersistence;
@@ -49,14 +53,15 @@ public class EnemyAI : MonoBehaviour
         else
         {
             persistenceTimer -= Time.deltaTime;
-            if (persistenceTimer <= 0 || playerSafe) isChasing = false;
+            // Dacă cronometrul a expirat, sau ești safe, sau ai murit -> se întoarce la patrulare
+            if (persistenceTimer <= 0 || playerSafe || playerDead) isChasing = false;
         }
 
-        // 3. Setăm ținta
+        // 4. Setăm ținta
         if (isChasing) SetAITarget(player);
         else Patrol();
 
-        // 4. Actualizăm Animația
+        // 5. Actualizăm Animația
         UpdateAnimation();
     }
 

@@ -5,10 +5,11 @@ public class PlayerAttack : MonoBehaviour
     [Header("Setări Atac")]
     public KeyCode attackKey = KeyCode.Space;
     public float attackRange = 1.0f;
-    public int damage = 25;
 
-    // NOU: Distanța față de jucător. O poți schimba din Inspector!
-    // Am pus 0.3 ca start, înainte era efectiv 0.8 fix.
+    // NOU: Unghiul conului (deschiderea "feliei de pizza"). 120 e perfect pentru săbii.
+    [Range(0f, 360f)]
+    public float attackAngle = 120f;
+
     [Range(0f, 1f)]
     public float attackOffset = 0.3f;
 
@@ -16,6 +17,15 @@ public class PlayerAttack : MonoBehaviour
     public Animator swordAnimator;
     public Transform swordSlashTransform;
     public PlayerMovement movement;
+
+    // NOU: Facem legătura cu statusurile tale pentru a lua damage-ul real!
+    private PlayerStats playerStats;
+
+    void Start()
+    {
+        // Găsim automat scriptul de statusuri când începe jocul
+        playerStats = GetComponent<PlayerStats>();
+    }
 
     void Update()
     {
@@ -29,18 +39,33 @@ public class PlayerAttack : MonoBehaviour
     {
         if (movement == null || swordAnimator == null || swordSlashTransform == null) return;
 
-        // Pasul magic: Poziționăm doar sabia
+        // Poziționăm animația sabiei
         PositionSlash();
-
-        // Pornim animația
         swordAnimator.SetTrigger("Attack");
 
-        // Logică Damage
-        Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(swordSlashTransform.position, attackRange);
+        // 1. Căutăm inamicii din jurul nostru (luăm centrul jucătorului ca punct de plecare)
+        Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(transform.position, attackRange);
+
         foreach (Collider2D enemy in hitEnemies)
         {
             EnemyStats stats = enemy.GetComponent<EnemyStats>();
-            if (stats != null) stats.TakeDamage(damage);
+            if (stats != null)
+            {
+                // 2. Calculăm direcția de la tine spre inamic
+                Vector2 directionToEnemy = (enemy.transform.position - transform.position).normalized;
+
+                // 3. Calculăm unghiul dintre direcția în care te uiți (lastMoveDir) și inamic
+                float angle = Vector2.Angle(movement.lastMoveDir, directionToEnemy);
+
+                // 4. Lovim DOAR dacă unghiul este în interiorul conului nostru
+                if (angle < attackAngle / 2f)
+                {
+                    // Luăm damage-ul real din PlayerStats. Dacă nu-l găsește din ceva motiv, dă 25.
+                    int actualDamage = (playerStats != null) ? playerStats.damage : 25;
+
+                    stats.TakeDamage(actualDamage);
+                }
+            }
         }
     }
 
@@ -49,12 +74,13 @@ public class PlayerAttack : MonoBehaviour
         Vector2 dir = movement.lastMoveDir;
         swordSlashTransform.localRotation = Quaternion.identity;
 
-        // Logica de poziționare în cruce (+) - FOLOSIM attackOffset
+        // Resetăm scara la normal (1, 1, 1) înainte de fiecare atac
+        swordSlashTransform.localScale = new Vector3(1, 1, 1);
+
         if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y)) // Orizontal
         {
             if (dir.x > 0)
             { // DREAPTA
-                // Înlocuim 0.8f cu variabila noastră
                 swordSlashTransform.localPosition = new Vector3(attackOffset, 0, 0);
                 swordSlashTransform.localEulerAngles = new Vector3(0, 0, 0);
             }
@@ -62,6 +88,8 @@ public class PlayerAttack : MonoBehaviour
             { // STANGA
                 swordSlashTransform.localPosition = new Vector3(-attackOffset, 0, 0);
                 swordSlashTransform.localEulerAngles = new Vector3(0, 0, 180f);
+                // TRUCUL MAGIC: Răsturnăm axa Y ca animația să nu fie cu capul în jos
+                swordSlashTransform.localScale = new Vector3(1, -1, 1);
             }
         }
         else // Vertical
@@ -75,16 +103,16 @@ public class PlayerAttack : MonoBehaviour
             { // JOS
                 swordSlashTransform.localPosition = new Vector3(0, -attackOffset, 0);
                 swordSlashTransform.localEulerAngles = new Vector3(0, 0, -90f);
+                // TRUCUL MAGIC: Răsturnăm axa Y și aici pentru a păstra direcția tăieturii
+                swordSlashTransform.localScale = new Vector3(1, -1, 1);
             }
         }
     }
 
     private void OnDrawGizmosSelected()
     {
-        if (swordSlashTransform != null)
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(swordSlashTransform.position, attackRange);
-        }
+        Gizmos.color = Color.red;
+        // Am mutat vizualizarea pe centrul jucătorului ca să vezi exact raza din care pornește conul
+        Gizmos.DrawWireSphere(transform.position, attackRange);
     }
 }
