@@ -1,50 +1,97 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
+using TMPro;
 
-// Interfețele astea 3 îi spun Unity-ului să asculte mouse-ul pentru acest obiect
-public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+// NOU: Am creat categoriile de iteme posibile
+public enum TipItem { Potiune, Arma, Armura, Material }
+
+public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler
 {
-    [HideInInspector] public Transform parentAfterDrag; // Ține minte unde trebuie să se întoarcă
+    [Header("Detalii Generale")]
+    public string numeItem = "Potiune";
+    public TipItem categoriaItemului = TipItem.Potiune; // Din Inspector alegi ce este!
+    public TMP_Text textCantitateSauUpgrade; // Același text vizual, dar îi schimbăm rolul
+
+    [Header("Pentru Poțiuni (Stacabile)")]
+    public int cantitate = 1;
+
+    [Header("Pentru Arme / Armuri")]
+    public int nivelUpgrade = 0; // Ex: 0 înseamnă simplu, 1 înseamnă +1
+    public int damageDeBaza = 10;
+
+    [HideInInspector] public Transform parentAfterDrag;
     private CanvasGroup canvasGroup;
 
     void Awake()
     {
-        // Avem nevoie de asta ca să facem iconița să nu blocheze mouse-ul când o tragem
         canvasGroup = GetComponent<CanvasGroup>();
-        if (canvasGroup == null)
+        if (canvasGroup == null) canvasGroup = gameObject.AddComponent<CanvasGroup>();
+
+        ActualizeazaText();
+    }
+
+    // Funcție nouă: Calculează damage-ul cu tot cu upgrade!
+    public int GetDamageTotal()
+    {
+        // Pentru fiecare nivel de upgrade, primești 5 damage în plus (poți schimba formula)
+        return damageDeBaza + (nivelUpgrade * 5);
+    }
+
+    public void AdaugaCantitate(int cat)
+    {
+        cantitate += cat;
+        ActualizeazaText();
+    }
+
+    // NOU: Acum textul arată ori "3" (la poțiuni), ori "+1" (la arme)
+    public void ActualizeazaText()
+    {
+        if (textCantitateSauUpgrade != null)
         {
-            canvasGroup = gameObject.AddComponent<CanvasGroup>();
+            if (categoriaItemului == TipItem.Arma || categoriaItemului == TipItem.Armura)
+            {
+                textCantitateSauUpgrade.text = nivelUpgrade > 0 ? "+" + nivelUpgrade : "";
+            }
+            else
+            {
+                textCantitateSauUpgrade.text = cantitate > 1 ? cantitate.ToString() : "";
+            }
         }
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        Debug.Log("Am început să trag de un obiect!");
-        parentAfterDrag = transform.parent; // Salvăm slotul din care a plecat
-
-        // Îl scoatem din slot și îl punem direct pe Canvas-ul mare ca să se vadă peste toate celelalte UI-uri
+        parentAfterDrag = transform.parent;
         transform.SetParent(transform.root);
         transform.SetAsLastSibling();
-
-        // Facem iconița transparentă la click, ca mouse-ul să poată "vedea" slotul de dedesubt
         canvasGroup.blocksRaycasts = false;
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        // Iconița urmărește mouse-ul
         transform.position = Input.mousePosition;
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        Debug.Log("Am lăsat obiectul din mână.");
         transform.SetParent(parentAfterDrag);
-
-        // NOU: Asta îl forțează să se centreze perfect în noua căsuță (nu îl lasă să zboare)
         GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-
         canvasGroup.blocksRaycasts = true;
+    }
+
+    public void OnDrop(PointerEventData eventData)
+    {
+        GameObject obiectPrimit = eventData.pointerDrag;
+        DraggableItem itemPrimit = obiectPrimit.GetComponent<DraggableItem>();
+
+        if (itemPrimit != null && itemPrimit != this)
+        {
+            // Doar poțiunile și materialele se pot stacha! Armele NU se stachează!
+            if (this.numeItem == itemPrimit.numeItem && (this.categoriaItemului == TipItem.Potiune || this.categoriaItemului == TipItem.Material))
+            {
+                this.AdaugaCantitate(itemPrimit.cantitate);
+                Destroy(obiectPrimit);
+            }
+        }
     }
 }
