@@ -46,6 +46,8 @@ public class PlayerStats : MonoBehaviour
     public TMP_Text pointsText;
     public TMP_Text strText;
     public TMP_Text vitText;
+    // NOU: Am adăugat referința pentru textul dexterității
+    public TMP_Text dexText;
 
     void Start()
     {
@@ -135,14 +137,13 @@ public class PlayerStats : MonoBehaviour
         var movement = GetComponent<PlayerMovement>();
         if (movement != null) movement.enabled = false;
 
-        // Declanșăm animația de moarte (trebuie să ai un Trigger numit "Die" în Animator)
+        // Declanșăm animația de moarte
         if (anim != null) anim.SetTrigger("Die");
 
-        // Afișăm butoanele pe ecran și le blocăm temporar interactiunea
+        // Afișăm butoanele pe ecran și le blocăm temporar
         if (townButton != null) { townButton.gameObject.SetActive(true); townButton.interactable = false; }
         if (spotButton != null) { spotButton.gameObject.SetActive(true); spotButton.interactable = false; }
 
-        // Setăm timpii de așteptare
         townTimer = 3f;
         spotTimer = 5f;
         townTimerActive = true;
@@ -154,18 +155,16 @@ public class PlayerStats : MonoBehaviour
         GetComponent<Rigidbody2D>().simulated = false;
     }
 
-    // Funcția chemată de butonul "Respawn city"
     public void RespawnInTown()
     {
-        if (townSpawnPoint != null) transform.position = townSpawnPoint.position; // Teleportare
-        currentHealth = maxHealth; // Viață plină
+        if (townSpawnPoint != null) transform.position = townSpawnPoint.position;
+        currentHealth = maxHealth;
         ResetPlayerAfterRespawn();
     }
 
-    // Funcția chemată de butonul "Respawn here"
     public void RespawnOnSpot()
     {
-        currentHealth = Mathf.RoundToInt(maxHealth * 0.2f); // 20% din viață
+        currentHealth = Mathf.RoundToInt(maxHealth * 0.2f);
         ResetPlayerAfterRespawn();
     }
 
@@ -176,18 +175,15 @@ public class PlayerStats : MonoBehaviour
         if (healthBar != null) healthBar.SetHealth(currentHealth);
         UpdateHPText();
 
-        // Pornim înapoi mișcarea
         var movement = GetComponent<PlayerMovement>();
         if (movement != null) movement.enabled = true;
 
-        // Ascundem butoanele înapoi
         if (townButton != null) townButton.gameObject.SetActive(false);
         if (spotButton != null) spotButton.gameObject.SetActive(false);
 
-        // Resetăm animația
         if (anim != null)
         {
-            anim.Play("Idle"); // Pune aici numele stării tale de bază din Animator dacă nu e "Idle" (ex: "Blend Tree")
+            anim.Play("Idle");
             anim.ResetTrigger("Die");
         }
         transform.rotation = Quaternion.Euler(0, 0, 0);
@@ -195,13 +191,106 @@ public class PlayerStats : MonoBehaviour
         GetComponent<Rigidbody2D>().simulated = true;
     }
 
-    // Funcțiile vechi lăsate intacte
-    public void RecalculateStats() { int oldMaxHealth = maxHealth; maxHealth = vitality * 10; damage = strength * 2; if (healthBar != null && maxHealth > oldMaxHealth) healthBar.SetMaxHealth(maxHealth); }
-    public void AddXP(int amount) { if (isDead) return; currentXP += amount; while (currentXP >= xpToNextLevel) LevelUp(); UpdateUI(); }
-    public void AddGold(int amount) { if (isDead) return; gold += amount; UpdateUI(); }
-    void LevelUp() { level++; currentXP -= xpToNextLevel; xpToNextLevel = Mathf.RoundToInt(xpToNextLevel * 1.5f); statPointsAvailable += 3; currentHealth = maxHealth; if (healthBar != null) healthBar.SetHealth(currentHealth); UpdateUI(); UpdateHPText(); }
-    public void UpgradeStrength() { if (statPointsAvailable > 0) { strength++; statPointsAvailable--; RecalculateStats(); UpdateUI(); } }
-    public void UpgradeVitality() { if (statPointsAvailable > 0) { vitality++; statPointsAvailable--; RecalculateStats(); currentHealth += 10; if (healthBar != null) healthBar.SetHealth(currentHealth); UpdateUI(); UpdateHPText(); } }
-    public void UpdateUI() { if (xpText != null) xpText.text = "XP: " + currentXP + " / " + xpToNextLevel + " (Lvl " + level + ")"; if (goldText != null) goldText.text = "Gold: " + gold; if (strText != null) { pointsText.text = "Puncte Disponibile: " + statPointsAvailable; strText.text = "Strength: " + strength; vitText.text = "Vitality: " + vitality; } }
-    public void UpdateHPText() { if (hpText != null) hpText.text = currentHealth + " / " + maxHealth; }
+    public void RecalculateStats()
+    {
+        int oldMaxHealth = maxHealth;
+
+        // VIAȚA DE BAZĂ ESTE 50. Fiecare punct de vitalitate mai adaugă încă 10.
+        // La 0 vit = 50 HP. La 1 vit = 60 HP, etc.
+        maxHealth = 50 + (vitality * 10);
+
+        // Dacă vrei ca jucătorul să aibă și un damage minim la 0 Strength (de exemplu 2), poți face la fel:
+        // damage = 2 + (strength * 2);
+        damage = strength * 2;
+
+        if (healthBar != null && maxHealth > oldMaxHealth)
+        {
+            healthBar.SetMaxHealth(maxHealth);
+        }
+    }
+
+    public void AddXP(int amount)
+    {
+        if (isDead) return;
+        currentXP += amount;
+        while (currentXP >= xpToNextLevel) LevelUp();
+        UpdateUI();
+    }
+
+    public void AddGold(int amount)
+    {
+        if (isDead) return;
+        gold += amount;
+        UpdateUI();
+    }
+
+    void LevelUp()
+    {
+        level++;
+        currentXP -= xpToNextLevel;
+        xpToNextLevel = Mathf.RoundToInt(xpToNextLevel * 1.5f);
+        statPointsAvailable += 3;
+        currentHealth = maxHealth;
+        if (healthBar != null) healthBar.SetHealth(currentHealth);
+        UpdateUI();
+        UpdateHPText();
+    }
+
+    public void UpgradeStrength()
+    {
+        if (statPointsAvailable > 0)
+        {
+            strength++;
+            statPointsAvailable--;
+            RecalculateStats();
+            UpdateUI();
+        }
+    }
+
+    // REPARAT: Funcția de dexteritate acum scade punctele corect
+    public void UpgradeDexterity()
+    {
+        if (statPointsAvailable > 0)
+        {
+            dexterity++;
+            statPointsAvailable--;
+            RecalculateStats();
+            UpdateUI();
+        }
+    }
+
+    public void UpgradeVitality()
+    {
+        if (statPointsAvailable > 0)
+        {
+            vitality++;
+            statPointsAvailable--;
+            RecalculateStats();
+            currentHealth += 10;
+            if (healthBar != null) healthBar.SetHealth(currentHealth);
+            UpdateUI();
+            UpdateHPText();
+        }
+    }
+
+    public void UpdateUI()
+    {
+        if (xpText != null) xpText.text = "XP: " + currentXP + " / " + xpToNextLevel + " (Lvl " + level + ")";
+        if (goldText != null) goldText.text = "Gold: " + gold;
+
+        if (strText != null)
+        {
+            pointsText.text = "Puncte Disponibile: " + statPointsAvailable;
+            strText.text = "Strength: " + strength;
+            vitText.text = "Vitality: " + vitality;
+
+            // NOU: Acum textul dexterității se va schimba vizual pe ecran
+            if (dexText != null) dexText.text = "Dexterity: " + dexterity;
+        }
+    }
+
+    public void UpdateHPText()
+    {
+        if (hpText != null) hpText.text = currentHealth + " / " + maxHealth;
+    }
 }

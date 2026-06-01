@@ -5,7 +5,7 @@ using TMPro;
 // NOU: Am creat categoriile de iteme posibile
 public enum TipItem { Potiune, Arma, Armura, Material }
 
-public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler
+public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler, IPointerEnterHandler, IPointerExitHandler
 {
     [Header("Detalii Generale")]
     public string numeItem = "Potiune";
@@ -65,6 +65,7 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         transform.SetParent(transform.root);
         transform.SetAsLastSibling();
         canvasGroup.blocksRaycasts = false;
+        TooltipManager.instance.AscundeTooltip();
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -74,9 +75,43 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        // 1. Sabia se întoarce vizual la locul ei în inventar
         transform.SetParent(parentAfterDrag);
         GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
         canvasGroup.blocksRaycasts = true;
+
+        // 2. Scanăm lumea 2D sub mouse folosind un radar complet (RaycastAll)
+        if (categoriaItemului == TipItem.Arma || categoriaItemului == TipItem.Armura)
+        {
+            Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+            // Luăm o listă cu TOATE obiectele care se află sub mouse în acea secundă
+            RaycastHit2D[] hits = Physics2D.RaycastAll(mouseWorldPos, Vector2.zero);
+
+            bool gasitFierar = false;
+
+            foreach (RaycastHit2D hit in hits)
+            {
+                if (hit.collider != null)
+                {
+                    // Căutăm scriptul Fierarului pe oricare dintre obiectele lovite
+                    BlacksmithDropZone fierar = hit.collider.GetComponent<BlacksmithDropZone>();
+
+                    if (fierar != null)
+                    {
+                        Debug.Log("🎯 SUCCES: Am găsit Fierarul sub mouse-ul tău!");
+                        fierar.PrimesteArma(this);
+                        gasitFierar = true;
+                        break; // Am găsit ce ne doream, oprim căutarea
+                    }
+                }
+            }
+
+            if (!gasitFierar)
+            {
+                Debug.LogWarning("❌ Radarul a scanat zona, dar nu a detectat niciun collider cu scriptul BlacksmithDropZone.");
+            }
+        }
     }
 
     public void OnDrop(PointerEventData eventData)
@@ -93,5 +128,28 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
                 Destroy(obiectPrimit);
             }
         }
+    }
+    // Când intră mouse-ul pe item
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        string info = numeItem;
+
+        if (categoriaItemului == TipItem.Arma || categoriaItemului == TipItem.Armura)
+        {
+            info += " +" + nivelUpgrade;
+            info += "\nDamage: " + GetDamageTotal();
+        }
+        else if (categoriaItemului == TipItem.Potiune)
+        {
+            info += "\nCantitate: " + cantitate;
+        }
+
+        TooltipManager.instance.ArataTooltip(info);
+    }
+
+    // Când iese mouse-ul de pe item
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        TooltipManager.instance.AscundeTooltip();
     }
 }
