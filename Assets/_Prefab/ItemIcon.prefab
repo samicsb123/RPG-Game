@@ -225,8 +225,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   numeItem: Potiune
+  categoriaItemului: 0
+  textCantitateSauUpgrade: {fileID: 7060681457136667945}
   cantitate: 1
-  textCantitate: {fileID: 7060681457136667945}
+  nivelUpgrade: 0
+  damageDeBaza: 10
   parentAfterDrag: {fileID: 0}
 --- !u!225 &5580039641172440274
 CanvasGroup:
