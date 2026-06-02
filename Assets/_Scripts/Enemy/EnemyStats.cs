@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections;
 
 public class EnemyStats : MonoBehaviour
 {
@@ -64,7 +65,39 @@ public class EnemyStats : MonoBehaviour
             Die();
         }
     }
+    // NOU: Funcția pornește cronometrul de înghețare pentru inamic
+    public void ApplyHitStun(float duration)
+    {
+        StartCoroutine(HitStunCoroutine(duration));
+    }
 
+    private IEnumerator HitStunCoroutine(float duration)
+    {
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+
+        // 1. Înghețăm inamicul complet pe loc (oprim fizica și viteza)
+        if (rb != null)
+        {
+            rb.velocity = Vector2.zero;
+            rb.simulated = false; // Îngheață poziția și fizica complet
+        }
+
+        // OPTIONAL: Dacă ai un script separat de mișcare pe inamic (ex: EnemyAI sau EnemyMovement),
+        // este excelent să îl oprești și pe acela aici ca să nu încerce să se miște:
+        // var aiMiscare = GetComponent<EnemyAI>();
+        // if (aiMiscare != null) aiMiscare.enabled = false;
+
+        // Așteptăm cele 0.3 secunde cerute
+        yield return new WaitForSeconds(duration);
+
+        // 2. Îi dăm drumul înapoi inamicului să se miște și să te atace
+        if (rb != null)
+        {
+            rb.simulated = true;
+        }
+
+        // if (aiMiscare != null) aiMiscare.enabled = true;
+    }
 
     void Die()
     {

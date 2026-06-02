@@ -76,10 +76,20 @@ public class UpgradeManager : MonoBehaviour
         else
         {
             // EȘEC!
-            Debug.Log("Fierar: Upgrade EȘUAT! Sabia a rămas la același nivel.");
-            // Dacă vrei să scadă nivelul când eșuează (gen de la +8 pică la +7), scrii aici:
-            // if (itemDeUpgradat.nivelUpgrade > 0) itemDeUpgradat.nivelUpgrade--; 
-            // itemDeUpgradat.ActualizeazaText();
+            if (itemDeUpgradat.nivelUpgrade > 0)
+            {
+                // Scade un nivel
+                itemDeUpgradat.nivelUpgrade--;
+                Debug.Log($"Fierar: Upgrade EȘUAT! Sabia a retrogradat la +{itemDeUpgradat.nivelUpgrade}.");
+            }
+            else
+            {
+                // Rămâne +0
+                Debug.Log("Fierar: Upgrade EȘUAT! Sabia a rămas la +0.");
+            }
+
+            // Actualizăm textul de pe iconița sabiei și textele din panoul fierarului
+            itemDeUpgradat.ActualizeazaText();
             ActualizeazaTexte();
         }
     }
