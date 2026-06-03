@@ -2,37 +2,48 @@
 
 public class EquipmentManager : MonoBehaviour
 {
-    // Facem scriptul "Static" ca să poată fi citit instantaneu de orice alt script din joc
     public static EquipmentManager instance;
 
     [Header("Referințe Inventar")]
-    public InventorySlot slotArma; // Aici vei trage primul slot gri (VIP)
+    public InventorySlot slotArma;
+    public GameObject placeholderArma; // NOU: Referința către imaginea gri
 
     [Header("Statistici Bază")]
-    public int damagePumn = 2; // Damage-ul dacă ataci fără sabie echipată
+    public int damagePumn = 2;
 
     void Awake()
     {
         instance = this;
     }
 
-    // Funcție care ne spune cu Adevărat/Fals dacă sabia e în slotul corect
+    // NOU: Jocul va verifica încontinuu dacă slotul este ocupat
+    void Update()
+    {
+        if (placeholderArma != null)
+        {
+            // Dacă funcția AreArmaEchipata() este Falsă, placeholder-ul e vizibil (True).
+            // Dacă funcția AreArmaEchipata() este Adevărată, placeholder-ul se ascunde (False).
+            placeholderArma.SetActive(!AreArmaEchipata());
+        }
+    }
+
     public bool AreArmaEchipata()
     {
         DraggableItem arma = slotArma.GetComponentInChildren<DraggableItem>();
+        // Atenție: Dacă ai eroare aici, e posibil să nu ai "TipItem.Arma" definit. 
+        // Dacă îți dă eroare, folosește doar "return arma != null;"
         return arma != null && arma.categoriaItemului == TipItem.Arma;
     }
 
-    // Funcție care calculează damage-ul total în momentul atacului
     public int GetDamageCurent()
     {
         DraggableItem arma = slotArma.GetComponentInChildren<DraggableItem>();
 
         if (arma != null && arma.categoriaItemului == TipItem.Arma)
         {
-            return arma.GetDamageTotal(); // Returnează damage-ul bazei + upgrade-ul Fierarului
+            return arma.GetDamageTotal();
         }
 
-        return damagePumn; // Dacă slotul e gol sau are altceva, dă damage minim
+        return damagePumn;
     }
 }

@@ -68,11 +68,14 @@ public class ShopNPC : MonoBehaviour
                     Debug.Log("Magazin: Inventarul tãu este plin!");
                 }
             }
+        FindObjectOfType<SaveManager>().SaveGame();
         }
+
         else
         {
             Debug.Log("Magazin: Nu ai destul Gold!");
         }
+        
     }
 
     // Func?iile care aprind/sting textul când intri în zonã (Toggle-ul)

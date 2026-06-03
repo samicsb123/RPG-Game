@@ -73,26 +73,28 @@ public class UpgradeManager : MonoBehaviour
             if (itemDeUpgradat.nivelUpgrade >= 9) InchidePanou();
             else ActualizeazaTexte(); // Actualizăm pentru următorul nivel dacă vrea să continue
         }
+        // ... codul de dinainte (cu succes sau eșec) ...
         else
         {
             // EȘEC!
             if (itemDeUpgradat.nivelUpgrade > 0)
             {
-                // Scade un nivel
                 itemDeUpgradat.nivelUpgrade--;
                 Debug.Log($"Fierar: Upgrade EȘUAT! Sabia a retrogradat la +{itemDeUpgradat.nivelUpgrade}.");
             }
             else
             {
-                // Rămâne +0
                 Debug.Log("Fierar: Upgrade EȘUAT! Sabia a rămas la +0.");
             }
 
-            // Actualizăm textul de pe iconița sabiei și textele din panoul fierarului
             itemDeUpgradat.ActualizeazaText();
             ActualizeazaTexte();
         }
-    }
+
+        // NOU: SALVARE INSTANTANEE ANTI-CHEAT
+        // Imediat ce zarul a fost dat și sabia modificată, salvăm jocul!
+        FindObjectOfType<SaveManager>().SaveGame();
+    } // <- Aici e finalul funcției ConfirmaUpgrade()
 
     public void InchidePanou()
     {

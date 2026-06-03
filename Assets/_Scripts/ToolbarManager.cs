@@ -64,5 +64,6 @@ public class ToolbarManager : MonoBehaviour
         {
             Destroy(potiune.gameObject);
         }
+        FindObjectOfType<SaveManager>().SaveGame();
     }
 }

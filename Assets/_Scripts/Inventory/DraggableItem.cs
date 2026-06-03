@@ -116,6 +116,11 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
 
     public void OnDrop(PointerEventData eventData)
     {
+        if (eventData.pointerEnter != null)
+            Debug.Log("Mouse-ul s-a lovit de: " + eventData.pointerEnter.name);
+        else
+            Debug.Log("Mouse-ul a căzut în gol!");
+
         GameObject obiectPrimit = eventData.pointerDrag;
         DraggableItem itemPrimit = obiectPrimit.GetComponent<DraggableItem>();
 

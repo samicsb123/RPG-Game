@@ -234,6 +234,7 @@ public class PlayerStats : MonoBehaviour
         if (healthBar != null) healthBar.SetHealth(currentHealth);
         UpdateUI();
         UpdateHPText();
+        FindObjectOfType<SaveManager>().SaveGame();
     }
 
     public void UpgradeStrength()
@@ -244,10 +245,10 @@ public class PlayerStats : MonoBehaviour
             statPointsAvailable--;
             RecalculateStats();
             UpdateUI();
+            FindObjectOfType<SaveManager>().SaveGame();
         }
     }
 
-    // REPARAT: Funcția de dexteritate acum scade punctele corect
     public void UpgradeDexterity()
     {
         if (statPointsAvailable > 0)
@@ -256,6 +257,7 @@ public class PlayerStats : MonoBehaviour
             statPointsAvailable--;
             RecalculateStats();
             UpdateUI();
+            FindObjectOfType<SaveManager>().SaveGame();
         }
     }
 
@@ -270,6 +272,7 @@ public class PlayerStats : MonoBehaviour
             if (healthBar != null) healthBar.SetHealth(currentHealth);
             UpdateUI();
             UpdateHPText();
+            FindObjectOfType<SaveManager>().SaveGame();
         }
     }
 
