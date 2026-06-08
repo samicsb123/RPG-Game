@@ -121,6 +121,7 @@ public class PlayerStats : MonoBehaviour
         if (isDead) return;
 
         currentHealth -= damageAmount;
+        ScreenShake.instance.Shake(0.2f, 2.5f);
         if (healthBar != null) healthBar.SetHealth(currentHealth);
         UpdateHPText();
 
