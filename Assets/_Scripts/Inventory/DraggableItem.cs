@@ -7,16 +7,16 @@ public enum TipItem { Potiune, Arma, Armura, Material }
 
 public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler, IPointerEnterHandler, IPointerExitHandler
 {
-    [Header("Detalii Generale")]
-    public string numeItem = "Potiune";
-    public TipItem categoriaItemului = TipItem.Potiune; // Din Inspector alegi ce este!
-    public TMP_Text textCantitateSauUpgrade; // Același text vizual, dar îi schimbăm rolul
+    [Header("General Details")]
+    public string numeItem = "Potion";
+    public TipItem categoriaItemului = TipItem.Potiune; // Choose what it is from the Inspector!
+    public TMP_Text textCantitateSauUpgrade; // The same visual text, but we change its role
 
-    [Header("Pentru Poțiuni (Stacabile)")]
+    [Header("For Potions (Stackable)")]
     public int cantitate = 1;
 
-    [Header("Pentru Arme / Armuri")]
-    public int nivelUpgrade = 0; // Ex: 0 înseamnă simplu, 1 înseamnă +1
+    [Header("For Weapons / Armor")]
+    public int nivelUpgrade = 0; // Ex: 0 means simple, 1 means +1
     public int damageDeBaza = 10;
 
     [HideInInspector] public Transform parentAfterDrag;
@@ -33,7 +33,7 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     // Funcție nouă: Calculează damage-ul cu tot cu upgrade!
     public int GetDamageTotal()
     {
-        // Pentru fiecare nivel de upgrade, primești 5 damage în plus (poți schimba formula)
+        // For each upgrade level, you get 5 extra damage (you can change the formula)
         return damageDeBaza + (nivelUpgrade * 5);
     }
 
@@ -75,17 +75,17 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        // 1. Sabia se întoarce vizual la locul ei în inventar
+        // 1. The weapon visually returns to its slot in the inventory
         transform.SetParent(parentAfterDrag);
         GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
         canvasGroup.blocksRaycasts = true;
 
-        // 2. Scanăm lumea 2D sub mouse folosind un radar complet (RaycastAll)
+        // 2. Scan the 2D world under the mouse using a full radar (RaycastAll)
         if (categoriaItemului == TipItem.Arma || categoriaItemului == TipItem.Armura)
         {
             Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-            // Luăm o listă cu TOATE obiectele care se află sub mouse în acea secundă
+            // Get a list of ALL objects under the mouse at that exact frame
             RaycastHit2D[] hits = Physics2D.RaycastAll(mouseWorldPos, Vector2.zero);
 
             bool gasitFierar = false;
@@ -94,22 +94,22 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
             {
                 if (hit.collider != null)
                 {
-                    // Căutăm scriptul Fierarului pe oricare dintre obiectele lovite
+                    // Look for the Blacksmith script on any of the hit objects
                     BlacksmithDropZone fierar = hit.collider.GetComponent<BlacksmithDropZone>();
 
                     if (fierar != null)
                     {
-                        Debug.Log("🎯 SUCCES: Am găsit Fierarul sub mouse-ul tău!");
+                        Debug.Log("🎯 SUCCESS: Found the Blacksmith under your mouse!");
                         fierar.PrimesteArma(this);
                         gasitFierar = true;
-                        break; // Am găsit ce ne doream, oprim căutarea
+                        break; // Found what we wanted, stop searching
                     }
                 }
             }
 
             if (!gasitFierar)
             {
-                Debug.LogWarning("❌ Radarul a scanat zona, dar nu a detectat niciun collider cu scriptul BlacksmithDropZone.");
+                Debug.LogWarning("❌ Radar scanned the area, but did not detect any collider with the BlacksmithDropZone script.");
             }
         }
     }
@@ -117,16 +117,16 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     public void OnDrop(PointerEventData eventData)
     {
         if (eventData.pointerEnter != null)
-            Debug.Log("Mouse-ul s-a lovit de: " + eventData.pointerEnter.name);
+            Debug.Log("Mouse hit: " + eventData.pointerEnter.name);
         else
-            Debug.Log("Mouse-ul a căzut în gol!");
+            Debug.Log("Mouse dropped in empty space!");
 
         GameObject obiectPrimit = eventData.pointerDrag;
         DraggableItem itemPrimit = obiectPrimit.GetComponent<DraggableItem>();
 
         if (itemPrimit != null && itemPrimit != this)
         {
-            // Doar poțiunile și materialele se pot stacha! Armele NU se stachează!
+            // Doar poțiile și materialele se pot stacha! Armele NU se stachează!
             if (this.numeItem == itemPrimit.numeItem && (this.categoriaItemului == TipItem.Potiune || this.categoriaItemului == TipItem.Material))
             {
                 this.AdaugaCantitate(itemPrimit.cantitate);
@@ -134,7 +134,8 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
             }
         }
     }
-    // Când intră mouse-ul pe item
+
+    // When the mouse enters the item
     public void OnPointerEnter(PointerEventData eventData)
     {
         string info = numeItem;
@@ -146,13 +147,13 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         }
         else if (categoriaItemului == TipItem.Potiune)
         {
-            info += "\nCantitate: " + cantitate;
+            info += "\nQuantity: " + cantitate;
         }
 
         TooltipManager.instance.ArataTooltip(info);
     }
 
-    // Când iese mouse-ul de pe item
+    // When the mouse exits the item
     public void OnPointerExit(PointerEventData eventData)
     {
         TooltipManager.instance.AscundeTooltip();

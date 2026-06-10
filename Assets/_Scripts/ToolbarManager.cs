@@ -24,16 +24,17 @@ public class ToolbarManager : MonoBehaviour
 
         Transform slot = sloturiToolbar[indexSlot];
 
-        // NOU: Nu mai numărăm copiii, căutăm direct poțiunea
         DraggableItem item = slot.GetComponentInChildren<DraggableItem>();
 
-        if (item != null && item.numeItem == "Potiune")
+        // FIX-UL E AICI: Acum verifică dacă se numește "Potion" (cu P mare) 
+        // SAU dacă face parte din categoria Potiune (mult mai sigur)
+        if (item != null && (item.numeItem == "Potion" || item.categoriaItemului == TipItem.Potiune))
         {
             ConsumePotion(item);
         }
     }
 
-    void ConsumePotion(DraggableItem potiune)
+    void ConsumePotion(DraggableItem potion)
     {
         // 1. Dacă viața e deja plină, nu risipim poțiunea degeaba
         if (playerStats.currentHealth >= playerStats.maxHealth)
@@ -57,13 +58,15 @@ public class ToolbarManager : MonoBehaviour
         Debug.Log("Consumed a potion! Health restored.");
 
         // 5. Scădem o bucată din stack-ul de poțiuni
-        potiune.AdaugaCantitate(-1);
+        potion.AdaugaCantitate(-1);
 
         // 6. Dacă am băut-o pe ultima (0 bucăți), distrugem sticla din inventar
-        if (potiune.cantitate <= 0)
+        if (potion.cantitate <= 0)
         {
-            Destroy(potiune.gameObject);
+            Destroy(potion.gameObject);
         }
+
+        // Salvăm jocul după ce ne-am dat heal
         FindObjectOfType<SaveManager>().SaveGame();
     }
 }

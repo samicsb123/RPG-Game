@@ -33,7 +33,7 @@ public class UpgradeManager : MonoBehaviour
     {
         int nivel = itemDeUpgradat.nivelUpgrade;
         infoText.text = $"Upgrade {itemDeUpgradat.numeItem} (+{nivel} -> +{nivel + 1})\nCost: {costuriGold[nivel]} Gold";
-        chanceText.text = $"Șansă de reușită: {sanseReusita[nivel]}%";
+        chanceText.text = $"Success rate: {sanseReusita[nivel]}%";
 
         // Culoarea textului de șansă în funcție de cât de riscant e
         if (sanseReusita[nivel] >= 80) chanceText.color = Color.green;
