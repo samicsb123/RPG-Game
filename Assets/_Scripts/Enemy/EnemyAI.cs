@@ -15,10 +15,13 @@ public class EnemyAI : MonoBehaviour
     private Animator anim;
     private Component aiPathHidden;
 
-    [Header("Setări Perseverență")]
+    [Header("Setări Perseverență & Anti-Blocare")]
     public float chasePersistence = 3f;
     private float persistenceTimer;
     private bool isChasing = false;
+
+    public float maxPatrolTime = 4f; // Cât timp încearcă să ajungă la un punct
+    private float patrolTimer = 0f;
 
     void Start()
     {
@@ -26,25 +29,28 @@ public class EnemyAI : MonoBehaviour
         aiDestinationSetter = GetComponent("AIDestinationSetter");
         aiPathHidden = GetComponent("AIPath");
 
-        patrolTargetObject = new GameObject("Urs_PatrolTarget");
-        GetNewPatrolPoint();
+        if (player == null)
+        {
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null) player = playerObj.transform;
+        }
+
+        patrolTargetObject = new GameObject("Urs_PatrolTarget_" + gameObject.GetInstanceID());
+        GetNewPatrolPoint(false); // La început, alege un punct normal
     }
 
     void Update()
     {
         if (player == null || aiDestinationSetter == null) return;
 
-        // 1. Verificăm SafeZone 
         var playerScript = player.GetComponent<PlayerMovement>();
         bool playerSafe = (playerScript != null) ? playerScript.isInSafeZone : false;
 
-        // 2. NOU: Verificăm dacă jucătorul este mort
         var playerStats = player.GetComponent<PlayerStats>();
         bool playerDead = (playerStats != null) ? playerStats.isDead : false;
 
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
-        // 3. Logică de Urmărire (Te atacă doar dacă NU ești safe și NU ești mort)
         if (distanceToPlayer <= detectionRange && !playerSafe && !playerDead)
         {
             isChasing = true;
@@ -53,15 +59,19 @@ public class EnemyAI : MonoBehaviour
         else
         {
             persistenceTimer -= Time.deltaTime;
-            // Dacă cronometrul a expirat, sau ești safe, sau ai murit -> se întoarce la patrulare
             if (persistenceTimer <= 0 || playerSafe || playerDead) isChasing = false;
         }
 
-        // 4. Setăm ținta
-        if (isChasing) SetAITarget(player);
-        else Patrol();
+        if (isChasing)
+        {
+            SetAITarget(player);
+            patrolTimer = 0f; // Resetăm timer-ul de blocare cât timp fuge după tine
+        }
+        else
+        {
+            Patrol();
+        }
 
-        // 5. Actualizăm Animația
         UpdateAnimation();
     }
 
@@ -82,7 +92,6 @@ public class EnemyAI : MonoBehaviour
                 float currentH = anim.GetFloat("Horizontal");
                 float currentV = anim.GetFloat("Vertical");
 
-                // Smoothing pentru mișcare lină în Blend Tree
                 float smoothH = Mathf.MoveTowards(currentH, targetDir.x, Time.deltaTime * animationSmoothSpeed);
                 float smoothV = Mathf.MoveTowards(currentV, targetDir.y, Time.deltaTime * animationSmoothSpeed);
 
@@ -99,14 +108,40 @@ public class EnemyAI : MonoBehaviour
 
     void Patrol()
     {
+        patrolTimer += Time.deltaTime;
+
+        // 1. Dacă a ajuns la destinație -> Alege un punct nou normal
         if (Vector2.Distance(transform.position, patrolTargetObject.transform.position) < 0.5f)
-            GetNewPatrolPoint();
+        {
+            GetNewPatrolPoint(false);
+        }
+        // 2. Dacă s-a blocat în gard/margine (a expirat timerul) -> Forțează întoarcerea!
+        else if (patrolTimer > maxPatrolTime)
+        {
+            GetNewPatrolPoint(true);
+        }
 
         SetAITarget(patrolTargetObject.transform);
     }
 
-    void GetNewPatrolPoint()
+    void GetNewPatrolPoint(bool isStuck)
     {
+        patrolTimer = 0f;
+
+        // SISTEM NOU: Dacă e blocat la margine, forțează-l să meargă înspre zona activă a hărții (spre player)
+        if (isStuck && player != null)
+        {
+            Vector2 directionTowardsCenter = (player.position - transform.position).normalized;
+
+            // Îi dăm un unghi random (-45 la 45 grade) ca să nu meargă toți urșii lipiți unul de altul direct spre tine
+            float randomAngle = Random.Range(-45f, 45f);
+            Vector2 directionWithVariation = Quaternion.Euler(0, 0, randomAngle) * directionTowardsCenter;
+
+            patrolTargetObject.transform.position = (Vector2)transform.position + directionWithVariation * patrolRadius;
+            return;
+        }
+
+        // Dacă nu e blocat, comportament normal de patrulare
         for (int i = 0; i < 10; i++)
         {
             Vector2 potentialPoint = (Vector2)transform.position + Random.insideUnitCircle * patrolRadius;
