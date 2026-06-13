@@ -55791,9 +55791,9 @@ MonoBehaviour:
   damage: 0
   level: 1
   currentXP: 0
-  xpToNextLevel: 100
+  xpToNextLevel: 200
   statPointsAvailable: 0
-  gold: 500000
+  gold: 0
   healthBar: {fileID: 1159826416}
   hpText: {fileID: 1709996542}
   xpText: {fileID: 474779516}
