@@ -46203,6 +46203,24 @@ Tilemap:
     m_Data: {fileID: 11400000, guid: 6b22118580a3d43469508ef5bcbe61ee, type: 2}
   - m_RefCount: 1
     m_Data: {fileID: 11400000, guid: 70bd44ba3ef2f834aa80d894b1c94e52, type: 2}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
   m_TileSpriteArray:
   - m_RefCount: 2
     m_Data: {fileID: 1084259978, guid: dd6885190350d054180f075bacc8574e, type: 3}
@@ -46318,6 +46336,24 @@ Tilemap:
     m_Data: {fileID: 513880293, guid: dd6885190350d054180f075bacc8574e, type: 3}
   - m_RefCount: 1
     m_Data: {fileID: -923321280, guid: dd6885190350d054180f075bacc8574e, type: 3}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
   m_TileMatrixArray:
   - m_RefCount: 3216
     m_Data:
@@ -46344,7 +46380,7 @@ Tilemap:
   m_AnimationFrameRate: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Origin: {x: -22, y: -38, z: 0}
-  m_Size: {x: 68, y: 48, z: 1}
+  m_Size: {x: 68, y: 51, z: 1}
   m_TileAnchor: {x: 0.5, y: 0.5, z: 0}
   m_TileOrientation: 0
   m_TileOrientationMatrix:
@@ -55735,6 +55771,7 @@ MonoBehaviour:
   attackKey: 32
   attackRange: 2
   attackCooldown: 1
+  attackFreezeDuration: 0.3
   attackAngle: 180
   attackOffset: 0.3
   swordAnimator: {fileID: 710796849}

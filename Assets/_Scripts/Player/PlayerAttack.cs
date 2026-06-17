@@ -12,8 +12,14 @@ public class PlayerAttack : MonoBehaviour
     [Header("Setări Atac & Cooldown")]
     public KeyCode attackKey = KeyCode.Space;
     public float attackRange = 1.0f;
-    public float attackCooldown = 1.0f; // NOU: Cooldown de 1 secundă între atacuri
-    private float nextAttackTime = 0f;   // NOU: Cronometrul intern pentru cooldown
+    public float attackCooldown = 1.0f;
+    private float nextAttackTime = 0f;
+
+
+    public float attackFreezeDuration = 0.3f; 
+    private float freezeTimer = 0f;
+    private Rigidbody2D rb; 
+  
 
     [Range(0f, 360f)]
     public float attackAngle = 120f;
@@ -32,6 +38,7 @@ public class PlayerAttack : MonoBehaviour
     void Start()
     {
         playerStats = GetComponent<PlayerStats>();
+        rb = GetComponent<Rigidbody2D>(); // Luăm referința corpului fizic
 
         if (swordSlashTransform != null)
         {
@@ -41,21 +48,30 @@ public class PlayerAttack : MonoBehaviour
 
     void Update()
     {
-        // --- LINIA ANTI-BUG ADAUGATĂ AICI ---
-        // Dacă scriptul de statistici există și jucătorul este mort, ne oprim instant și ignorăm orice tastă apăsată!
+        // 1. Verificăm dacă e mort (Prioritatea #1)
         if (playerStats != null && playerStats.isDead)
         {
             return;
         }
-        // -------------------------------------
 
-        // Verificăm dacă a trecut timpul de cooldown înainte de a putea ataca din nou
+        // 2. NOU: Cronometrul pentru blocarea mișcării
+        if (freezeTimer > 0)
+        {
+            freezeTimer -= Time.deltaTime;
+            // Dacă timpul s-a scurs, îi dăm înapoi dreptul de a se mișca
+            if (freezeTimer <= 0)
+            {
+                if (movement != null) movement.enabled = true;
+            }
+        }
+
+        // 3. Verificăm dacă poate ataca (Cooldown)
         if (Time.time >= nextAttackTime)
         {
             if (Input.GetKeyDown(attackKey))
             {
                 Attack();
-                nextAttackTime = Time.time + attackCooldown; // Blocăm atacul pentru următoarea secundă
+                nextAttackTime = Time.time + attackCooldown;
             }
         }
     }
@@ -63,6 +79,12 @@ public class PlayerAttack : MonoBehaviour
     void Attack()
     {
         if (movement == null || swordAnimator == null || swordSlashTransform == null) return;
+
+        // --- NOU: Înghețăm jucătorul pe loc ---
+        freezeTimer = attackFreezeDuration; // Setăm cronometrul la 0.5s
+        movement.enabled = false;           // Oprim citirea tastelor de mișcare (WASD/Săgeți)
+        if (rb != null) rb.velocity = Vector2.zero; // Îl oprim din alunecare (dacă era deja în mișcare)
+        // --------------------------------------
 
         bool areArma = EquipmentManager.instance.AreArmaEchipata();
 
@@ -90,7 +112,6 @@ public class PlayerAttack : MonoBehaviour
         }
 
         int actualDamage = damageArma + bonusStrength;
-
         int sansaTotalaCritica = sansaCritica;
 
         if (playerStats != null)
@@ -120,10 +141,7 @@ public class PlayerAttack : MonoBehaviour
                 if (angle < attackAngle / 2f)
                 {
                     stats.TakeDamage(finalDamage);
-
-                    // NOU: Îi aplicăm inamicului efectul de freeze (înghețare) pentru 0.3 secunde
                     stats.ApplyHitStun(0.3f);
-
                     amLovitMacarUnInamic = true;
                 }
             }
@@ -136,6 +154,8 @@ public class PlayerAttack : MonoBehaviour
             popup.SeteazaDamage(finalDamage, esteCritic);
         }
     }
+
+    // ... restul codului rămâne exact la fel (PositionSlash și OnDrawGizmosSelected) ...
 
     void PositionSlash()
     {

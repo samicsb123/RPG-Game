@@ -26,7 +26,7 @@ public class EnemyAI : MonoBehaviour
     // --- VARIABILE NOI PENTRU SUNET URS ---
     [Header("Setări Sunet Urs")]
     private float roarTimer = 0f;
-    public float roarInterval = 3f;          // La câte secunde să urle în chase
+    public float roarInterval = 6f;          // La câte secunde să urle în chase
     private bool wasChasingLastFrame = false;  // Să știe când începe fix atacul
     // --------------------------------------
 
