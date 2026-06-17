@@ -121,9 +121,11 @@ public class PlayerStats : MonoBehaviour
         if (isDead) return;
 
         currentHealth -= damageAmount;
+        AudioManager.instance.PlaySound("DamageReceived");
         ScreenShake.instance.Shake(0.2f, 2.5f);
         if (healthBar != null) healthBar.SetHealth(currentHealth);
         UpdateHPText();
+
 
         if (currentHealth <= 0) Die();
     }
@@ -154,6 +156,8 @@ public class PlayerStats : MonoBehaviour
         GetComponent<SpriteRenderer>().color = Color.gray;
         GetComponent<Rigidbody2D>().velocity = Vector2.zero;
         GetComponent<Rigidbody2D>().simulated = false;
+
+        AudioManager.instance.PlaySound("YouDied");
     }
 
     public void RespawnInTown()

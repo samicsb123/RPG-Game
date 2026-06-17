@@ -26,11 +26,10 @@ public class ToolbarManager : MonoBehaviour
 
         DraggableItem item = slot.GetComponentInChildren<DraggableItem>();
 
-        // FIX-UL E AICI: Acum verifică dacă se numește "Potion" (cu P mare) 
-        // SAU dacă face parte din categoria Potiune (mult mai sigur)
         if (item != null && (item.numeItem == "Potion" || item.categoriaItemului == TipItem.Potiune))
         {
             ConsumePotion(item);
+
         }
     }
 
@@ -56,8 +55,8 @@ public class ToolbarManager : MonoBehaviour
         if (playerStats.healthBar != null) playerStats.healthBar.SetHealth(playerStats.currentHealth);
         playerStats.UpdateHPText();
         Debug.Log("Consumed a potion! Health restored.");
+        AudioManager.instance.PlaySound("Potion");
 
-        // 5. Scădem o bucată din stack-ul de poțiuni
         potion.AdaugaCantitate(-1);
 
         // 6. Dacă am băut-o pe ultima (0 bucăți), distrugem sticla din inventar

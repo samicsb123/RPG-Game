@@ -23,6 +23,13 @@ public class EnemyAI : MonoBehaviour
     public float maxPatrolTime = 4f; // Cât timp încearcă să ajungă la un punct
     private float patrolTimer = 0f;
 
+    // --- VARIABILE NOI PENTRU SUNET URS ---
+    [Header("Setări Sunet Urs")]
+    private float roarTimer = 0f;
+    public float roarInterval = 3f;          // La câte secunde să urle în chase
+    private bool wasChasingLastFrame = false;  // Să știe când începe fix atacul
+    // --------------------------------------
+
     void Start()
     {
         anim = GetComponent<Animator>();
@@ -66,10 +73,38 @@ public class EnemyAI : MonoBehaviour
         {
             SetAITarget(player);
             patrolTimer = 0f; // Resetăm timer-ul de blocare cât timp fuge după tine
+
+            // --- COD NOU PENTRU SUNET (ROAR) AICI ---
+            // 1. Când abia te-a văzut și începe chase-ul
+            if (!wasChasingLastFrame)
+            {
+                // Asigură-te că ai un sunet numit exact "BearRoar" în lista din AudioManager
+                if (AudioManager.instance != null)
+                {
+                    AudioManager.instance.PlaySound("BearRoar");
+                }
+                roarTimer = roarInterval;
+                wasChasingLastFrame = true;
+            }
+
+            // 2. Scădem timpul și urlă iar dacă a trecut intervalul (ex: 3 sec)
+            roarTimer -= Time.deltaTime;
+            if (roarTimer <= 0f)
+            {
+                if (AudioManager.instance != null)
+                {
+                    AudioManager.instance.PlaySound("BearRoar");
+                }
+                roarTimer = roarInterval;
+            }
+            // ------------------------------------------
         }
         else
         {
             Patrol();
+
+            // --- Când pierde jucătorul, se calmează ---
+            wasChasingLastFrame = false;
         }
 
         UpdateAnimation();

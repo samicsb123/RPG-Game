@@ -114,5 +114,7 @@ public class EnemyStats : MonoBehaviour
         }
 
         Destroy(gameObject); // Asta va declanșa automat Spawner-ul nostru!
+        AudioManager.instance.PlaySound("DeadBear");
     }
+
 }

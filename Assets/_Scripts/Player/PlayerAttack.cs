@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using TMPro;
+using UnityEngine.UI;
 
 public class PlayerAttack : MonoBehaviour
 {
@@ -39,7 +41,15 @@ public class PlayerAttack : MonoBehaviour
 
     void Update()
     {
-        // NOU: Verificăm dacă a trecut timpul de cooldown înainte de a putea ataca din nou
+        // --- LINIA ANTI-BUG ADAUGATĂ AICI ---
+        // Dacă scriptul de statistici există și jucătorul este mort, ne oprim instant și ignorăm orice tastă apăsată!
+        if (playerStats != null && playerStats.isDead)
+        {
+            return;
+        }
+        // -------------------------------------
+
+        // Verificăm dacă a trecut timpul de cooldown înainte de a putea ataca din nou
         if (Time.time >= nextAttackTime)
         {
             if (Input.GetKeyDown(attackKey))
@@ -61,6 +71,7 @@ public class PlayerAttack : MonoBehaviour
             swordSlashTransform.gameObject.SetActive(true);
             PositionSlash();
             swordAnimator.SetTrigger("Attack");
+            AudioManager.instance.PlaySound("Slash");
         }
         else
         {

@@ -12,6 +12,14 @@ public class MainMenuManager : MonoBehaviour
         saveFilePath = Application.persistentDataPath + "/savefile.json";
     }
 
+    // --- FUNCȚIA NOUĂ ADAUGATĂ AICI ---
+    void Start()
+    {
+        // Pornim muzica de meniu imediat ce intrăm în această scenă
+        AudioManager.instance.PlayMusic("MainMenu");
+    }
+    // ----------------------------------
+
     public void NewGame()
     {
         // Ștergem salvarea veche ca să o luăm de la 0
@@ -36,6 +44,12 @@ public class MainMenuManager : MonoBehaviour
         {
             Debug.Log("Nu există nicio salvare!");
         }
+    }
+
+    public void OpenSettings()
+    {
+        // Aici vom activa un panou (Canvas) cu setări mai târziu
+        Debug.Log("Deschidem meniul de setări...");
     }
 
     public void QuitGame()
