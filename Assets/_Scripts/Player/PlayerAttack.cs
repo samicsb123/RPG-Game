@@ -15,11 +15,9 @@ public class PlayerAttack : MonoBehaviour
     public float attackCooldown = 1.0f;
     private float nextAttackTime = 0f;
 
-
-    public float attackFreezeDuration = 0.3f; 
+    public float attackFreezeDuration = 0.3f;
     private float freezeTimer = 0f;
-    private Rigidbody2D rb; 
-  
+    private Rigidbody2D rb;
 
     [Range(0f, 360f)]
     public float attackAngle = 120f;
@@ -37,31 +35,41 @@ public class PlayerAttack : MonoBehaviour
 
     void Start()
     {
+        // Ne asigurăm că scripturile sunt mereu găsite pe același obiect
         playerStats = GetComponent<PlayerStats>();
-        rb = GetComponent<Rigidbody2D>(); // Luăm referința corpului fizic
+        movement = GetComponent<PlayerMovement>();
+        rb = GetComponent<Rigidbody2D>();
 
-        if (swordSlashTransform != null)
+        // Protecții pentru a depista ușor ce ai uitat să pui în Inspector
+        if (swordSlashTransform == null)
+        {
+            Debug.LogError("ATENȚIE: Nu ai pus 'Sword Slash Transform' în Inspector la Player Attack!");
+        }
+        else
         {
             swordSlashTransform.gameObject.SetActive(false);
+        }
+
+        if (swordAnimator == null)
+        {
+            Debug.LogError("ATENȚIE: Nu ai pus 'Sword Animator' în Inspector la Player Attack!");
         }
     }
 
     void Update()
     {
-        // 1. Verificăm dacă e mort (Prioritatea #1)
-        if (playerStats != null && playerStats.isDead)
-        {
-            return;
-        }
+        // 1. Verificăm dacă e mort sau dacă ceva vital lipsește
+        if (playerStats != null && playerStats.isDead) return;
+        if (movement == null) return;
 
-        // 2. NOU: Cronometrul pentru blocarea mișcării
+        // 2. Cronometrul pentru blocarea mișcării
         if (freezeTimer > 0)
         {
             freezeTimer -= Time.deltaTime;
             // Dacă timpul s-a scurs, îi dăm înapoi dreptul de a se mișca
             if (freezeTimer <= 0)
             {
-                if (movement != null) movement.enabled = true;
+                movement.enabled = true;
             }
         }
 
@@ -80,20 +88,34 @@ public class PlayerAttack : MonoBehaviour
     {
         if (movement == null || swordAnimator == null || swordSlashTransform == null) return;
 
-        // --- NOU: Înghețăm jucătorul pe loc ---
-        freezeTimer = attackFreezeDuration; // Setăm cronometrul la 0.5s
-        movement.enabled = false;           // Oprim citirea tastelor de mișcare (WASD/Săgeți)
-        if (rb != null) rb.velocity = Vector2.zero; // Îl oprim din alunecare (dacă era deja în mișcare)
-        // --------------------------------------
+        // --- Înghețăm jucătorul pe loc în timpul atacului ---
+        freezeTimer = attackFreezeDuration;
+        movement.enabled = false;
+        if (rb != null) rb.velocity = Vector2.zero;
+        // ----------------------------------------------------
 
-        bool areArma = EquipmentManager.instance.AreArmaEchipata();
+        // Protecție: Verificăm dacă EquipmentManager chiar există în scenă
+        bool areArma = false;
+        if (EquipmentManager.instance != null)
+        {
+            areArma = EquipmentManager.instance.AreArmaEchipata();
+        }
+        else
+        {
+            Debug.LogWarning("EquipmentManager lipsește din această scenă! Se presupune că nu ai armă.");
+        }
 
         if (areArma)
         {
             swordSlashTransform.gameObject.SetActive(true);
             PositionSlash();
             swordAnimator.SetTrigger("Attack");
-            AudioManager.instance.PlaySound("Slash");
+
+            // Protecție pentru AudioManager
+            if (AudioManager.instance != null)
+            {
+                AudioManager.instance.PlaySound("Slash");
+            }
         }
         else
         {
@@ -103,9 +125,14 @@ public class PlayerAttack : MonoBehaviour
 
         Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(transform.position, attackRange);
 
-        int damageArma = EquipmentManager.instance.GetDamageCurent();
-        int bonusStrength = 0;
+        // Preluăm damage-ul, tot sub protecție
+        int damageArma = 0;
+        if (EquipmentManager.instance != null)
+        {
+            damageArma = EquipmentManager.instance.GetDamageCurent();
+        }
 
+        int bonusStrength = 0;
         if (playerStats != null)
         {
             bonusStrength = playerStats.strength * 2;
@@ -154,8 +181,6 @@ public class PlayerAttack : MonoBehaviour
             popup.SeteazaDamage(finalDamage, esteCritic);
         }
     }
-
-    // ... restul codului rămâne exact la fel (PositionSlash și OnDrawGizmosSelected) ...
 
     void PositionSlash()
     {

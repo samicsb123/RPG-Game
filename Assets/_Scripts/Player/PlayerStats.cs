@@ -121,11 +121,26 @@ public class PlayerStats : MonoBehaviour
         if (isDead) return;
 
         currentHealth -= damageAmount;
-        AudioManager.instance.PlaySound("DamageReceived");
-        ScreenShake.instance.Shake(0.2f, 2.5f);
+
+        // 1. Protecție pentru sunet
+        if (AudioManager.instance != null)
+        {
+            AudioManager.instance.PlaySound("DamageReceived");
+        }
+        else
+        {
+            Debug.LogWarning("AudioManager lipsește din scenă!");
+        }
+
+        // 2. Protecție pentru cutremurul camerei
+        if (ScreenShake.instance != null)
+        {
+            ScreenShake.instance.Shake(0.2f, 2.5f);
+        }
+
+        // 3. Acum viața se va scădea mereu pe UI, chiar dacă sunetul/camera lipsesc!
         if (healthBar != null) healthBar.SetHealth(currentHealth);
         UpdateHPText();
-
 
         if (currentHealth <= 0) Die();
     }

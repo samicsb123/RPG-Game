@@ -33,17 +33,18 @@ public class EnemyStats : MonoBehaviour
 
     private void OnCollisionStay2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Player"))
+        // --- REPARAȚIA SUPREMĂ PENTRU PREFABURI ---
+        // Căutăm PlayerStats pe obiectul atins SAU pe părinții lui din ierarhie.
+        // Asta garantează că Ursul detectează Jucătorul, chiar dacă îi lovește doar „sabia” sau un collider secundar.
+        PlayerStats player = collision.gameObject.GetComponentInParent<PlayerStats>();
+
+        if (player != null && !player.isDead)
         {
             if (Time.time >= lastAttackTime + attackCooldown)
             {
-                PlayerStats player = collision.gameObject.GetComponent<PlayerStats>();
-                if (player != null)
-                {
-                    player.TakeDamage(attackDamage);
-                    lastAttackTime = Time.time;
-                    // Debug-ul tău e bun, îl lăsăm
-                }
+                player.TakeDamage(attackDamage);
+                lastAttackTime = Time.time;
+                Debug.Log("Ursul a atacat cu succes Jucătorul și i-a provocat damage!");
             }
         }
     }
@@ -58,13 +59,12 @@ public class EnemyStats : MonoBehaviour
             healthBar.SetHealth(currentHealth);
         }
 
-        // Aici poți adăuga un efect de sânge sau sclipire mai târziu
-
         if (currentHealth <= 0)
         {
             Die();
         }
     }
+
     // NOU: Funcția pornește cronometrul de înghețare pentru inamic
     public void ApplyHitStun(float duration)
     {
@@ -82,11 +82,6 @@ public class EnemyStats : MonoBehaviour
             rb.simulated = false; // Îngheață poziția și fizica complet
         }
 
-        // OPTIONAL: Dacă ai un script separat de mișcare pe inamic (ex: EnemyAI sau EnemyMovement),
-        // este excelent să îl oprești și pe acela aici ca să nu încerce să se miște:
-        // var aiMiscare = GetComponent<EnemyAI>();
-        // if (aiMiscare != null) aiMiscare.enabled = false;
-
         // Așteptăm cele 0.3 secunde cerute
         yield return new WaitForSeconds(duration);
 
@@ -95,8 +90,6 @@ public class EnemyStats : MonoBehaviour
         {
             rb.simulated = true;
         }
-
-        // if (aiMiscare != null) aiMiscare.enabled = true;
     }
 
     void Die()
@@ -114,7 +107,10 @@ public class EnemyStats : MonoBehaviour
         }
 
         Destroy(gameObject); // Asta va declanșa automat Spawner-ul nostru!
-        AudioManager.instance.PlaySound("DeadBear");
-    }
 
+        if (AudioManager.instance != null)
+        {
+            AudioManager.instance.PlaySound("DeadBear");
+        }
+    }
 }

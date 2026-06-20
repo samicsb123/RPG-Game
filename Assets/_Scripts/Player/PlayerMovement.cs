@@ -20,7 +20,7 @@ public class PlayerMovement : MonoBehaviour
         moveInput.x = Input.GetAxisRaw("Horizontal");
         moveInput.y = Input.GetAxisRaw("Vertical");
 
-        // Regula de aur: Trimitem date la Animator DOAR când ne mișcăm
+        // Regula de aur: Trimitem DIRECTIA la Animator DOAR când ne mișcăm
         if (moveInput != Vector2.zero)
         {
             animator.SetFloat("Horizontal", moveInput.x);
@@ -29,8 +29,13 @@ public class PlayerMovement : MonoBehaviour
             // Reținem direcția pentru atac
             lastMoveDir = moveInput.normalized;
         }
-        // Când moveInput e zero (adică stai), NU mai scriem nimic în animator.
-        // Așa el rămâne pe ultima valoare primită (stânga, sus, etc.)
+
+        // --- LINIILE MAGICE ADĂUGATE ---
+        // Trimitem viteza de mișcare (va fi mai mare ca 0 când mergi și fix 0 când te oprești)
+        animator.SetFloat("Speed", moveInput.sqrMagnitude);
+
+        // În caz că folosești și bifa în Animator, o bifăm/debifăm automat
+        animator.SetBool("isWalking", moveInput != Vector2.zero);
     }
 
     void FixedUpdate()
