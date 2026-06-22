@@ -158,17 +158,31 @@ public class PlayerAttack : MonoBehaviour
 
         foreach (Collider2D enemy in hitEnemies)
         {
-            EnemyStats stats = enemy.GetComponent<EnemyStats>();
+            // Vameșul caută ambele legitimații:
+            EnemyStats normalEnemy = enemy.GetComponent<EnemyStats>();
+            GiantSlimeBoss boss = enemy.GetComponent<GiantSlimeBoss>();
 
-            if (stats != null)
+            // Dacă a găsit MĂCAR unul dintre ei...
+            if (normalEnemy != null || boss != null)
             {
                 Vector2 directionToEnemy = (enemy.transform.position - transform.position).normalized;
                 float angle = Vector2.Angle(movement.lastMoveDir, directionToEnemy);
 
                 if (angle < attackAngle / 2f)
                 {
-                    stats.TakeDamage(finalDamage);
-                    stats.ApplyHitStun(0.3f);
+                    // Cazul 1: E inamic mic
+                    if (normalEnemy != null)
+                    {
+                        normalEnemy.TakeDamage(finalDamage);
+                        normalEnemy.ApplyHitStun(0.3f);
+                    }
+                    // Cazul 2: E Tăticul Slime-urilor
+                    else if (boss != null)
+                    {
+                        boss.TakeDamage(finalDamage);
+                        // Opțional: îi dăm și lui un micro-stun, sau îl lăsăm tanc
+                    }
+
                     amLovitMacarUnInamic = true;
                 }
             }
