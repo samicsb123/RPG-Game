@@ -3641,7 +3641,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1949182423}
         m_TargetAssemblyTypeName: PlayerStats, Assembly-CSharp
-        m_MethodName: RecalculateStats
+        m_MethodName: UpgradeVitality
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -10857,7 +10857,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1949182423}
         m_TargetAssemblyTypeName: PlayerStats, Assembly-CSharp
-        m_MethodName: RecalculateStats
+        m_MethodName: UpgradeStrength
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -46902,7 +46902,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1949182423}
         m_TargetAssemblyTypeName: PlayerStats, Assembly-CSharp
-        m_MethodName: RecalculateStats
+        m_MethodName: UpgradeDexterity
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

@@ -180,6 +180,9 @@ public class PlayerStats : MonoBehaviour
         if (townSpawnPoint != null) transform.position = townSpawnPoint.position;
         currentHealth = maxHealth;
         ResetPlayerAfterRespawn();
+
+        // NOU: Caută managerul arenei și resetează boss-ul!
+        FindObjectOfType<BossArenaManager>()?.ResetArena();
     }
 
     public void RespawnOnSpot()
@@ -265,7 +268,7 @@ public class PlayerStats : MonoBehaviour
             statPointsAvailable--;
             RecalculateStats();
             UpdateUI();
-            FindObjectOfType<SaveManager>().SaveGame();
+            FindObjectOfType<SaveManager>()?.SaveGame(); // <-- Semnul întrebării e magia!
         }
     }
 
@@ -277,7 +280,7 @@ public class PlayerStats : MonoBehaviour
             statPointsAvailable--;
             RecalculateStats();
             UpdateUI();
-            FindObjectOfType<SaveManager>().SaveGame();
+            FindObjectOfType<SaveManager>()?.SaveGame();
         }
     }
 
@@ -292,7 +295,7 @@ public class PlayerStats : MonoBehaviour
             if (healthBar != null) healthBar.SetHealth(currentHealth);
             UpdateUI();
             UpdateHPText();
-            FindObjectOfType<SaveManager>().SaveGame();
+            FindObjectOfType<SaveManager>()?.SaveGame();
         }
     }
 

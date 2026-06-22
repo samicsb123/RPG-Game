@@ -176,6 +176,9 @@ MonoBehaviour:
   - name: BearRoar
     clip: {fileID: 8300000, guid: 7531ca22a42a8654aba1e1115d3d26e4, type: 3}
     volume: 0.226
+  - name: BossMusic
+    clip: {fileID: 8300000, guid: 91e5c6037b96d7144b768c91f201fded, type: 3}
+    volume: 0.226
 --- !u!4 &788644462
 Transform:
   m_ObjectHideFlags: 0
