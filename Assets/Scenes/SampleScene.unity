@@ -3639,9 +3639,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1949182423}
         m_TargetAssemblyTypeName: PlayerStats, Assembly-CSharp
-        m_MethodName: UpgradeVitality
+        m_MethodName: RecalculateStats
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -10855,9 +10855,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1949182423}
         m_TargetAssemblyTypeName: PlayerStats, Assembly-CSharp
-        m_MethodName: UpgradeStrength
+        m_MethodName: RecalculateStats
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -11520,7 +11520,7 @@ MonoBehaviour:
   upgradePanel: {fileID: 722308550}
   infoText: {fileID: 670285824}
   chanceText: {fileID: 1367380777}
-  playerStats: {fileID: 0}
+  playerStats: {fileID: 1949182423}
   costuriGold: 140000002800000050000000a0000000400100008002000000050000d0070000c4090000a00f0000
   sanseReusita: 64000000640000005a00000050000000460000003c00000037000000320000002d00000028000000
 --- !u!1 &727272933
@@ -46900,9 +46900,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1949182423}
         m_TargetAssemblyTypeName: PlayerStats, Assembly-CSharp
-        m_MethodName: UpgradeDexterity
+        m_MethodName: RecalculateStats
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -51423,7 +51423,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1949182423}
         m_TargetAssemblyTypeName: PlayerStats, Assembly-CSharp
         m_MethodName: RespawnOnSpot
         m_Mode: 1
@@ -56153,7 +56153,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1949182423}
         m_TargetAssemblyTypeName: PlayerStats, Assembly-CSharp
         m_MethodName: RespawnInTown
         m_Mode: 1
@@ -63620,6 +63620,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1949040895}
   m_CullTransparentMesh: 1
+--- !u!114 &1949182423 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3465202092927794765, guid: 1a8c3949e9e438347ab3c641bacf1102, type: 3}
+  m_PrefabInstance: {fileID: 378807538}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7276aad0133351947b9ecea5b979122e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1950994872
 GameObject:
   m_ObjectHideFlags: 0
@@ -67111,7 +67122,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50cd9cada72f7d64aa10a68f08f24e1a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerStats: {fileID: 0}
+  playerStats: {fileID: 1949182423}
   sloturiToolbar:
   - {fileID: 4135283993900155862}
   - {fileID: 2276159000474836895}
