@@ -8100,8 +8100,8 @@ MonoBehaviour:
   currentHealth: 0
   bossHealthSlider: {fileID: 1985489696}
   bossNameText: {fileID: 2837294}
-  phase1Controller: {fileID: 0}
-  phase2Controller: {fileID: 0}
+  phase1Controller: {fileID: 9100000, guid: ff3086403ed682c4fa20b5f7a0407ce5, type: 2}
+  phase2Controller: {fileID: 9100000, guid: 5cfb08047969fb34aadc39f47f18c30d, type: 2}
   standardHopForce: 6
   mutatedDashForce: 18
   hopCooldownPhase1: 1.8
