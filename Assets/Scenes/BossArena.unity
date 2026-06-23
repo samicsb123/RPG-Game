@@ -265,7 +265,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 50118783}
-  - component: {fileID: 50118782}
+  - component: {fileID: 50118784}
   m_Layer: 0
   m_Name: LevelManager
   m_TagString: Untagged
@@ -273,18 +273,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &50118782
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 50118781}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bdc8b79e1edc24b469a68dace734e09b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &50118783
 Transform:
   m_ObjectHideFlags: 0
@@ -300,6 +288,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &50118784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 50118781}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 592dae96130ace9468f017a22f082726, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &76762346
 GameObject:
   m_ObjectHideFlags: 0
@@ -496,6 +496,98 @@ MonoBehaviour:
   m_AmplitudeGain: 0
   m_FrequencyGain: 0
   mNoiseOffsets: {x: 0, y: 0, z: 0}
+--- !u!1 &122489668
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 122489671}
+  - component: {fileID: 122489670}
+  - component: {fileID: 122489669}
+  m_Layer: 0
+  m_Name: PortalToVillage
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &122489669
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 122489668}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a4499e20e795994e8a9c7dc6e790e41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneToLoad: SampleScene
+  targetSpawnPointName: Spawn_VenitDinBoss
+--- !u!61 &122489670
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 122489668}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0.044465065, y: 0.14080608}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 1.9782324, y: 1.0148218}
+  m_EdgeRadius: 0
+--- !u!4 &122489671
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 122489668}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -4.03, y: 2.11, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &127513752
 GameObject:
   m_ObjectHideFlags: 0
@@ -1695,6 +1787,37 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!1 &490460544
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 490460545}
+  m_Layer: 0
+  m_Name: Spawn_VenitDinVillage
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &490460545
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 490460544}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3.97, y: 0.54, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -1777,7 +1900,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 0.078431375, g: 0.078431375, b: 0.07058824, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -6967,8 +7090,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bossScript: {fileID: 1306836595}
   arenaDoor: {fileID: 1042699872}
-  bossMusicName: BossTheme
-  townMusicName: TownTheme
+  globalLight: {fileID: 619394801}
+  intunericArena: 1
+  bossMusicName: BossMusic
 --- !u!61 &1023285139
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -8048,6 +8172,11 @@ MonoBehaviour:
   phase2FlightTime: 0.4
   hopCooldownPhase1: 1.8
   hopCooldownPhase2: 0.8
+  highTierLootPrefabs: []
+  minItemsToDrop: 3
+  maxItemsToDrop: 6
+  xpReward: 1500
+  goldReward: 500
 --- !u!114 &1306836596
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8060,7 +8189,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97f9231abee9e3a49aaa16747581799d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  contactDamage: 15
+  contactDamage: 150
   damageCooldown: 2
 --- !u!1 &1311805050
 GameObject:
@@ -14447,6 +14576,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: DamageTextPrefab
       objectReference: {fileID: 0}
+    - target: {fileID: 231642915139923083, guid: 88e9f2e532b2b4f4f87f2d01a1a99a98, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8458470108563018295, guid: 88e9f2e532b2b4f4f87f2d01a1a99a98, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -14509,7 +14642,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8458470108563018295, guid: 88e9f2e532b2b4f4f87f2d01a1a99a98, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 3.55
       objectReference: {fileID: 0}
     - target: {fileID: 8458470108563018295, guid: 88e9f2e532b2b4f4f87f2d01a1a99a98, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -15806,3 +15939,5 @@ SceneRoots:
   - {fileID: 1042699874}
   - {fileID: 1023285140}
   - {fileID: 1974399380}
+  - {fileID: 490460545}
+  - {fileID: 122489671}

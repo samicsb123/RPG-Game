@@ -47,6 +47,15 @@ public class GiantSlimeBoss : MonoBehaviour
     private bool isActing = false;
     private int phase2AttackCycle = 0;
 
+    [Header("Loot System")]
+    public GameObject[] highTierLootPrefabs;
+    public int minItemsToDrop = 3;
+    public int maxItemsToDrop = 6;
+
+    [Header("Direct Rewards")]
+    public int xpReward = 1500;   // Câtă experiență dă
+    public int goldReward = 500;  // Câți bani dă
+
     void Start()
     {
         startPosition = transform.position;
@@ -269,11 +278,66 @@ public class GiantSlimeBoss : MonoBehaviour
 
         if (bossHealthSlider != null) bossHealthSlider.gameObject.SetActive(false);
 
+        // === 1. SISTEMUL DE LOOT: Aruncă itemele fizice pe jos ===
+        DropLoot();
+
+        // === 2. DĂ-I XP/GOLD ȘI SALVEAZĂ JOCUL INSTANTANEU ===
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null)
+        {
+            PlayerStats stats = player.GetComponent<PlayerStats>();
+            if (stats != null)
+            {
+                // Aici e SCHIMBAREA: folosim funcțiile tale oficiale care verifică Level Up-ul!
+                stats.AddXP(xpReward);
+                stats.AddGold(goldReward);
+            }
+
+            // FORȚĂM SALVAREA
+            SaveManager saveManager = player.GetComponent<SaveManager>();
+            if (saveManager != null)
+            {
+                saveManager.SaveGame();
+                Debug.Log("Jocul a fost salvat automat după moartea Boss-ului!");
+            }
+        }
+
+        // === 3. ANUNȚĂ ARENA SĂ DESCHIDĂ UȘA ===
+        BossArenaManager arena = FindObjectOfType<BossArenaManager>();
+        if (arena != null)
+        {
+            arena.BossDefeated();
+        }
+
+        // Distruge boss-ul după jumătate de secundă
         Destroy(gameObject, 0.5f);
     }
 
+    // Funcția care împrăștie efectiv itemele pe jos
+    private void DropLoot()
+    {
+        if (highTierLootPrefabs == null || highTierLootPrefabs.Length == 0) return;
+
+        // Alege câte obiecte să pice (ex: între 3 și 6)
+        int dropCount = Random.Range(minItemsToDrop, maxItemsToDrop + 1);
+
+        for (int i = 0; i < dropCount; i++)
+        {
+            // Alege la întâmplare un item din lista ta
+            int randomIndex = Random.Range(0, highTierLootPrefabs.Length);
+            GameObject itemToDrop = highTierLootPrefabs[randomIndex];
+
+            // Calculează o poziție random în jurul boss-ului ca să facă o "explozie" de loot
+            float offsetX = Random.Range(-1.5f, 1.5f);
+            float offsetY = Random.Range(-1.5f, 1.5f);
+            Vector3 spawnPosition = transform.position + new Vector3(offsetX, offsetY, 0);
+
+            Instantiate(itemToDrop, spawnPosition, Quaternion.identity);
+        }
+    }
+
     // ==========================================
-    // FUNȚIILE APELATE DE ARENA MANAGER (NOU)
+    // FUNȚIILE APELATE DE ARENA MANAGER
     // ==========================================
     public void WakeUpBoss()
     {

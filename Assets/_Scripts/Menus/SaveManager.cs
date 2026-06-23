@@ -154,7 +154,13 @@ public class SaveManager : MonoBehaviour
         string json = File.ReadAllText(saveFilePath);
         SaveData data = JsonUtility.FromJson<SaveData>(json);
 
-        transform.position = new Vector3(data.x, data.y, data.z);
+        // ==========================================
+        // REZOLVARE BUG TELEPORTARE: 
+        // Am ascuns linia de mai jos ca să nu te mai mute forțat 
+        // la coordonatele vechi din sat când intri în alte hărți.
+        // ==========================================
+        // transform.position = new Vector3(data.x, data.y, data.z);
+
         playerStats.level = data.level; playerStats.currentXP = data.xp; playerStats.xpToNextLevel = data.xpToNextLevel;
         playerStats.gold = data.gold; playerStats.statPointsAvailable = data.points;
         playerStats.strength = data.str; playerStats.dexterity = data.dex; playerStats.vitality = data.vit;
